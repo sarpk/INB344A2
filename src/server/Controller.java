@@ -25,10 +25,17 @@ public class Controller {
 	public static void main(String[] args) throws IOException {
 		String mainSearchRes = readFile("htmlpages/mainsearch.html",
 				Charset.defaultCharset());
+		String mainChoiceRes = readFile("htmlpages/mainchoice.html",
+				Charset.defaultCharset());
+		String searchNewsRes = readFile("htmlpages/searchnews.html",
+				Charset.defaultCharset());
 
 		HttpServer server = HttpServer.create(new InetSocketAddress(8002), 0);
-		server.createContext("/", new MainPageHandle(mainSearchRes));
-		server.createContext("/search", new SearchPageHandle());
+		server.createContext("/", new MainPageHandle(mainChoiceRes));
+		server.createContext("/mainsearch", new MainPageHandle(mainSearchRes));
+		server.createContext("/findNews", new SearchNewsPageHandle(searchNewsRes));
+		
+		server.createContext("/mainsearch/search", new SearchPageHandle());
 		server.setExecutor(null); // creates a default executor
 		server.start();
 
