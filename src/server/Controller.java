@@ -29,8 +29,14 @@ public class Controller {
 				Charset.defaultCharset());
 		String searchNewsRes = readFile("htmlpages/searchnews.html",
 				Charset.defaultCharset());
-
-		HttpServer server = HttpServer.create(new InetSocketAddress(8002), 0);
+		int portNumber = 8002;
+		for (int i = 0; i < args.length; i++) {
+			if ("-port".equals(args[i])) {
+				portNumber = Integer.valueOf(args[i + 1]);
+				i++;
+			} 
+		}
+		HttpServer server = HttpServer.create(new InetSocketAddress(portNumber), 0);
 		server.createContext("/", new MainPageHandle(mainChoiceRes));
 		server.createContext("/mainsearch", new MainPageHandle(mainSearchRes));
 		server.createContext("/findNews", new SearchNewsPageHandle(searchNewsRes));
