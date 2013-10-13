@@ -35,7 +35,7 @@ public class Controller {
 		server.createContext("/mainsearch", new MainPageHandle(mainSearchRes));
 		server.createContext("/findNews", new SearchNewsPageHandle(searchNewsRes));
 		
-		server.createContext("/mainsearch/search", new SearchPageHandle());
+		server.createContext("/searchNews", new SearchPageHandle());
 		server.setExecutor(null); // creates a default executor
 		server.start();
 
