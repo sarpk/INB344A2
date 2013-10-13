@@ -7,11 +7,15 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import crawler.CollectNewsFeeds;
+import crawler.DocumentAddress;
+import engine.IndexDocuments;
+import engine.SearchDocuments;
 
 public class SearchNewsPageHandle implements HttpHandler {
 	private String response;
@@ -45,9 +49,16 @@ public class SearchNewsPageHandle implements HttpHandler {
 
 			webAddress = httpQuery.split("=")[1];
 		}
+		if (!webAddress.startsWith("http://")) {
+			webAddress = "http://"+webAddress;
+		}
+		if (!webAddress.endsWith("/")) {
+			webAddress = webAddress + "/";
+		}
 		// System.out.println(webAddress);
 		CollectNewsFeeds feeds = null;
-		// To-Do get websites
+		IndexDocuments indexer = null;
+		SearchDocuments searcher = null;
 		if (CollectNewsFeeds.getCollector() == null) {
 			System.out.println("it is null");
 			lastHTMLTags = "<meta http-equiv=\"refresh\" content=\"2\">"
@@ -69,6 +80,9 @@ public class SearchNewsPageHandle implements HttpHandler {
 					}
 					lastHTMLTags = "<meta http-equiv=\"refresh\" content=\"10\">"
 							+ lastHTMLTags;
+					indexer = new IndexDocuments(FileLocations.collectNewsFeeds);
+					searcher = new SearchDocuments(FileLocations.collectNewsFeeds, "news", 5);
+					//searcher.getPages(0, 5);
 				}
 				System.out.println("It is still finished "
 						+ feeds.crawlFinished());
@@ -78,7 +92,20 @@ public class SearchNewsPageHandle implements HttpHandler {
 				feeds = new CollectNewsFeeds(webAddress);
 			}
 		}
-
+		//Index downloaded pages
+		if (feeds.crawlFinished() && indexer == null) {
+			indexer = new IndexDocuments(FileLocations.collectNewsFeeds);
+			searcher = new SearchDocuments(FileLocations.collectNewsFeeds, "news", 5);
+			//searcher.getPages(0, 5);
+		}
+		if(searcher != null) {
+			//List<String> strings = ;
+			DocumentAddress docAddr = new DocumentAddress(searcher.getPages(0, 5));
+			List<String> urls = docAddr.getURLS();
+		}
+		
+		
+		
 		String sites = "<option value=\"qut.edu.au\">QUT Research News</option>";
 		String finalResp = part1 + webAddress + part2 + sites + part3
 				+ lastHTMLTags;

@@ -1,5 +1,6 @@
 package crawler;
 
+import server.FileLocations;
 import crawl.cr.CollectorClass;
 
 public class CollectNewsFeeds {
@@ -10,9 +11,9 @@ public class CollectNewsFeeds {
 		// TODO Auto-generated constructor stub
 		CollectNewsFeeds.webAddress = webAddress;
 		collectInstance = this;
-		collectFromAddr = new CollectorClass(webAddress, "NewsCollection/");
+		collectFromAddr = new CollectorClass(webAddress, FileLocations.collectNewsFeeds);
 		collectFromAddr.setDepth(4);
-		collectFromAddr.setMaxFetch(50);
+		collectFromAddr.setMaxFetch(10);
 		collectFromAddr.setRobots(true);
 		collectFromAddr.setPoliteness(150);
 		collectFromAddr.setCrawlerAmount(3);

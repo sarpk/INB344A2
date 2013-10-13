@@ -13,5 +13,6 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/lucene"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
