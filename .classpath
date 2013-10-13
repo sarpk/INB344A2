@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="libs/http-20070405.jar"/>
+	<classpathentry kind="lib" path="libs/jsoup-1.7.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/cr"/>
 	<classpathentry kind="lib" path="C:/Users/Sarp/.m2/repository/edu/uci/ics/crawler4j/3.5/crawler4j-3.5.jar" sourcepath="C:/Users/Sarp/.m2/repository/edu/uci/ics/crawler4j/3.5/crawler4j-3.5-sources.jar">
 		<attributes>

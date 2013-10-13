@@ -2,12 +2,16 @@ package server;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -50,7 +54,7 @@ public class SearchNewsPageHandle implements HttpHandler {
 			webAddress = httpQuery.split("=")[1];
 		}
 		if (!webAddress.startsWith("http://")) {
-			webAddress = "http://"+webAddress;
+			webAddress = "http://" + webAddress;
 		}
 		if (!webAddress.endsWith("/")) {
 			webAddress = webAddress + "/";
@@ -59,11 +63,13 @@ public class SearchNewsPageHandle implements HttpHandler {
 		CollectNewsFeeds feeds = null;
 		IndexDocuments indexer = null;
 		SearchDocuments searcher = null;
+		URL checkURL = new URL(webAddress);
+		String checkWebAddress = checkURL.getHost();
 		if (CollectNewsFeeds.getCollector() == null) {
 			System.out.println("it is null");
 			lastHTMLTags = "<meta http-equiv=\"refresh\" content=\"2\">"
 					+ lastHTMLTags;
-			feeds = new CollectNewsFeeds(webAddress);
+			feeds = new CollectNewsFeeds(webAddress, checkWebAddress);
 		} else {
 			feeds = CollectNewsFeeds.getCollector();
 			String addr = CollectNewsFeeds.getWebAddress();
@@ -80,33 +86,57 @@ public class SearchNewsPageHandle implements HttpHandler {
 					}
 					lastHTMLTags = "<meta http-equiv=\"refresh\" content=\"10\">"
 							+ lastHTMLTags;
-					indexer = new IndexDocuments(FileLocations.collectNewsFeeds);
-					searcher = new SearchDocuments(FileLocations.collectNewsFeeds, "news", 5);
-					//searcher.getPages(0, 5);
+					indexer = new IndexDocuments(
+							FileLocations.collectNewsFeeds, checkWebAddress);
+					searcher = new SearchDocuments(
+							FileLocations.collectNewsFeeds, checkWebAddress,
+							"news", 5);
+					// searcher.getPages(0, 5);
 				}
 				System.out.println("It is still finished "
 						+ feeds.crawlFinished());
 			} else {
 				lastHTMLTags = "<meta http-equiv=\"refresh\" content=\"2\">"
 						+ lastHTMLTags;
-				feeds = new CollectNewsFeeds(webAddress);
+				feeds = new CollectNewsFeeds(webAddress, checkWebAddress);
 			}
 		}
-		//Index downloaded pages
+		//System.out.println("After the cond");
+		// Index downloaded pages
 		if (feeds.crawlFinished() && indexer == null) {
-			indexer = new IndexDocuments(FileLocations.collectNewsFeeds);
-			searcher = new SearchDocuments(FileLocations.collectNewsFeeds, "news", 5);
-			//searcher.getPages(0, 5);
+			indexer = new IndexDocuments(FileLocations.collectNewsFeeds,
+					checkWebAddress);
+			searcher = new SearchDocuments(FileLocations.collectNewsFeeds,
+					checkWebAddress, "news", 5);
+			// searcher.getPages(0, 5);
 		}
-		if(searcher != null) {
-			//List<String> strings = ;
-			DocumentAddress docAddr = new DocumentAddress(searcher.getPages(0, 5));
-			List<String> urls = docAddr.getURLS();
+		String sites = "";
+		if (searcher != null) {
+			//System.out.println("In doc adder");
+			List<String> pages = searcher.getPages(0, 5);
+			if (pages == null) {
+				System.out.println("Null Pages");
+			} else {
+				DocumentAddress docAddr = new DocumentAddress(pages);
+				List<String> urls = docAddr.getURLS();
+				//System.out.println("Got URLS");
+				if (urls == null) {
+					System.out.println("URL null here");
+				}
+				// String html = urls.get(0);
+				for (String html : urls) {
+					URL newURL = new URL(html);
+					Document doc = Jsoup.parse(newURL, 10000);
+					String pageTitle = doc.title();
+					String options = String
+							.format("<option value=\"%s\">%s</option>", html,
+									pageTitle);
+					sites += options;
+					//System.out.println(options);
+				}
+			}
 		}
-		
-		
-		
-		String sites = "<option value=\"qut.edu.au\">QUT Research News</option>";
+
 		String finalResp = part1 + webAddress + part2 + sites + part3
 				+ lastHTMLTags;
 		// System.out.println(finalResp);

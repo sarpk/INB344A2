@@ -7,16 +7,17 @@ public class CollectNewsFeeds {
 	private static CollectorClass collectFromAddr = null;
 	private static CollectNewsFeeds collectInstance = null;
 	private static String webAddress = null;
-	public CollectNewsFeeds(String webAddress) {
+	public CollectNewsFeeds(String webAddress, String hostAddr) {
 		// TODO Auto-generated constructor stub
 		CollectNewsFeeds.webAddress = webAddress;
 		collectInstance = this;
-		collectFromAddr = new CollectorClass(webAddress, FileLocations.collectNewsFeeds);
-		collectFromAddr.setDepth(4);
-		collectFromAddr.setMaxFetch(10);
+		String locationToBeSaved = FileLocations.collectNewsFeeds + "/" + hostAddr;
+		collectFromAddr = new CollectorClass(webAddress, locationToBeSaved);
+		collectFromAddr.setDepth(3);
+		collectFromAddr.setMaxFetch(100);
 		collectFromAddr.setRobots(true);
-		collectFromAddr.setPoliteness(150);
-		collectFromAddr.setCrawlerAmount(3);
+		collectFromAddr.setPoliteness(100);
+		collectFromAddr.setCrawlerAmount(10);
 		collectFromAddr.startCrawling();
 	}
 
