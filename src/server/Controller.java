@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import wordnet.WordNetQueryProcessor;
+
 import com.sun.net.httpserver.HttpServer;
 
 public class Controller {
@@ -29,18 +31,28 @@ public class Controller {
 				Charset.defaultCharset());
 		String searchNewsRes = readFile("htmlpages/searchnews.html",
 				Charset.defaultCharset());
-		int portNumber = 8002;
+		int portNumber = 8010;
 		for (int i = 0; i < args.length; i++) {
 			if ("-port".equals(args[i])) {
 				portNumber = Integer.valueOf(args[i + 1]);
 				i++;
-			} 
+			}
+			if ("-wordnet".equals(args[i])) {
+				WordNetQueryProcessor.wnhome = args[i + 1];
+				i++;
+			}
 		}
-		HttpServer server = HttpServer.create(new InetSocketAddress(portNumber), 0);
+		
+		
+		System.out.println("Using port " + portNumber);
+		System.out.println("Using wordnet location as  " + WordNetQueryProcessor.wnhome);
+		HttpServer server = HttpServer.create(
+				new InetSocketAddress(portNumber), 0);
 		server.createContext("/", new MainPageHandle(mainChoiceRes));
 		server.createContext("/mainsearch", new MainPageHandle(mainSearchRes));
-		server.createContext("/findNews", new SearchNewsPageHandle(searchNewsRes));
-		
+		server.createContext("/findNews", new SearchNewsPageHandle(
+				searchNewsRes));
+
 		server.createContext("/searchNews", new SearchPageHandle());
 		server.setExecutor(null); // creates a default executor
 		server.start();
