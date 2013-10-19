@@ -1,6 +1,5 @@
 package server;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -54,6 +53,7 @@ public class Controller {
 				searchNewsRes));
 
 		server.createContext("/searchNews", new SearchPageHandle());
+		server.createContext("/offlineSearch", new SearchOfflineHandle());
 		server.setExecutor(null); // creates a default executor
 		server.start();
 

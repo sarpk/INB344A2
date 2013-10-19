@@ -49,6 +49,9 @@ public class DocumentAddress {
 			if (indexExist.exists()) {
 				content = readFile(indexPath, Charset.defaultCharset());
 			}
+			else {
+				System.out.println(urlFolder + " does not exist!");
+			}
 			// System.out.println(content);
 			int indexFound = content.indexOf(fileName);
 

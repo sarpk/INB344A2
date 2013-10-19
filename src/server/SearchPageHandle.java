@@ -4,19 +4,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
-import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import crawler.CollectNewsArticles;
-import crawler.CollectNewsFeeds;
 import crawler.DocumentAddress;
 import engine.IndexDocuments;
 import engine.SearchDocuments;
@@ -44,9 +41,9 @@ public class SearchPageHandle implements HttpHandler {
 					+ "\n</body>\n</html>\n";
 			String resultsP = "<script>function goBack(){window.history.back()}</script>"
 					+ "<input type=\"button\" value=\"Back to Search\" onclick=\"goBack()\">"
-					+ "<p><b>Results for query "
+					+ "<p><b>Results for query \""
 					+ searchQuery
-					+ ":</b></p><br>";
+					+ "\":</b></p><br>";
 
 			URL checkURL = new URL(webAddress);
 			String checkWebAddress = checkURL.getHost();
@@ -73,6 +70,7 @@ public class SearchPageHandle implements HttpHandler {
 			if (searcher != null) {
 				// System.out.println("In doc adder");
 				List<String> pages = searcher.getPages(0, 10);
+				List<String> hContent = searcher.getHighlights(0, 10);
 				if (pages == null) {
 					System.out.println("Null Pages");
 				} else {
@@ -86,13 +84,30 @@ public class SearchPageHandle implements HttpHandler {
 					}
 					// String html = urls.get(0);
 					int docN = 0;
-					for (String html : urls) {
+					int minRes = Math.min(urls.size(), hContent.size());
+					for(int i = 0; i < minRes; i++) {
+						URL newURL = new URL(urls.get(i));
+						Document doc = Jsoup.parse(newURL, 10000);
+						String pageTitle = doc.title();
+						Elements metalinks = doc.select("meta[name=DC.Date.modified]");
+						String date = metalinks.attr("content").toString();
+						//String date = metalinks.toString();
+						if (!date.equals("")) {
+							date = "Date: " + date;
+						}
+						//System.out.println(metalinks + " date " + date);
+						String returnRes = String
+								.format("<p>%d. <b><FONT COLOR=\"blue\"><FONT SIZE=+1> %s </FONT></FONT></b> <br> %s <br> %s Link: <a href=\"%s\" target=\"_blank\">%s</a></p>",
+										++docN, pageTitle, hContent.get(i), date, urls.get(i), urls.get(i));
+						resultsP += returnRes;
+					}
+					/*for (String html : urls) {
 						String options = String
 								.format("<p>%d. <a href=\"%s\" target=\"_blank\">%s</a></p>",
 										++docN, html, html);
 						// System.out.println(options);
 						resultsP = resultsP + options;
-					}
+					}*/
 				}
 			}
 
